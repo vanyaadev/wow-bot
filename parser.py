@@ -3,22 +3,56 @@ from time import sleep
 from bs4 import BeautifulSoup
 import requests
 
-page = requests.get('https://www.g2g.com/wow-eu/gold-2522-19248?&page=1').text
-soup = BeautifulSoup(page,'html.parser')
-button = soup.find("a",{'id':'lazy-load-btn'})
+class GItem:
+    def __init__(self, min_quantity, region, fraction, currency, stock, server, seller_rating):
+        self.min_quantity = min_quantity
+        self.region= region
+        self.fraction=fraction
+        self.currency=currency
+        self.stock=stock
+        self.server=server
+        self.seller_rating=seller_rating
 
-products_amount =  int(soup.find('span',{'class':'products__amount'}).text.split()[0])
+    def __str__(self):
+        return self.min_quantity + ' ' + self.region +' ' + self.fraction +' ' + self.currency \
+               +' ' + self.stock +' ' + self.server +' ' + self.seller_rating
 
-products = []
-current_page = '1'
 
-while len(products)<products_amount:
-    url = 'https://www.g2g.com/wow-eu/gold-2522-19248?&page='+current_page
-    print("url="+url)
+def get_items_list():
+    url = 'https://www.g2g.com/wow-eu/gold-2522-19248?&page=1'
+    region = url[24:26]
     page = requests.get(url).text
-    soup = BeautifulSoup(page, 'html.parser')
-    for child in soup.findAll('li',{'class':'products__list-item js-accordion-parent'}):
-        #to do later
-        print("add_to_products")
+    soup = BeautifulSoup(page,'html.parser')
+    button = soup.find("a",{'id':'lazy-load-btn'})
 
-    current_page = str(int(current_page)+1)
+    products_amount =  int(soup.find('span',{'class':'products__amount'}).text.split()[0])
+    print(products_amount)
+    products = []
+    current_page = 1
+
+    while len(products)<products_amount:
+        url = 'https://www.g2g.com/wow-eu/gold-2522-19248?&page='+str(current_page)
+        print("url="+url)
+        page = requests.get(url).text
+        soup = BeautifulSoup(page, 'html.parser')
+
+        for child in soup.findAll('li',{'class':'products__list-item js-accordion-parent'}):
+            min_quantity = child.find('input',{'class':'products__count-input'}).get('value').strip()
+
+            server_fraction = child.findAll('li', {'class': 'active'})
+            if len(server_fraction)==2:
+                server = server_fraction[0].text.strip()
+                fraction = server_fraction[1].text.strip()
+            else:
+                server = 'Undefined'
+                fraction = server_fraction[0].text.strip()
+
+            currency = child.find('span', {'class': 'products__exch-rate'}).text.strip()[-3:]
+            stock = child.find('span', {'class': 'products__statistic-amount'}).text.strip().split()[0]
+
+
+            item = GItem(min_quantity,region,fraction,currency,stock,server,'0')
+            products.append(item)
+
+        current_page = current_page+1
+    return products
