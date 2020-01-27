@@ -32,12 +32,17 @@ def get_items_list():
 
     while len(products)<products_amount:
         url = 'https://www.g2g.com/wow-eu/gold-2522-19248?&page='+str(current_page)
-        print("url="+url)
+
         page = requests.get(url).text
         soup = BeautifulSoup(page, 'html.parser')
 
         for child in soup.findAll('li',{'class':'products__list-item js-accordion-parent'}):
             min_quantity = child.find('input',{'class':'products__count-input'}).get('value').strip()
+            seller_name = child.find('a',{'class':'seller__name'}).get('href')
+            page_of_seller =requests.get('https://www.g2g.com'+seller_name).text
+            soup2=BeautifulSoup(page_of_seller, 'html.parser')
+
+            seller_rating = soup2.find('span',{'class':'user-statistic__percent'}).text
 
             server_fraction = child.findAll('li', {'class': 'active'})
             if len(server_fraction)==2:
@@ -56,3 +61,5 @@ def get_items_list():
 
         current_page = current_page+1
     return products
+
+get_items_list()
