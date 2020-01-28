@@ -1,46 +1,96 @@
-from selenium.webdriver import Chrome
-from time import sleep
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup as bs
 import requests
+from threading import Thread
+from dataclasses import dataclass
+import logging
+import time
 
+
+def parse_list_of_servers(server_location: str):
+    url = ''
+    if server_location.lower() == 'eu':
+        url = 'https://www.g2g.com/wow-eu/gold-2522-19248'
+    else:
+        url = 'https://www.g2g.com/wow-us/gold-2299-19249'
+
+    page = requests.get(url).text
+    soup = bs(page, 'html.parser')
+    list_of_all_servers = soup.find('select', {'name': 'server', 'id': 'server'}).findChildren()[1:]
+
+    servers_bfa = []
+    servers_classic = []
+
+    for server in list_of_all_servers:
+        if 'Classic' in server.text:
+            servers_classic.append({
+                'value':str(server.get('value')),
+                'server_name':server.text
+            })
+        else:
+            servers_bfa.append({
+                'value': server.get('value'),
+                'server_name': server.text
+            })
+
+    return servers_classic, servers_bfa
+
+
+
+eu_classic_servers,eu_bfa_servers = parse_list_of_servers("eu")
+us_classic_servers,us_bfa_servers = parse_list_of_servers("us")
+
+
+@dataclass
 class GItem:
-    def __init__(self, min_quantity, region, fraction, currency, stock, server, seller_rating):
-        self.min_quantity = min_quantity
-        self.region= region
-        self.fraction=fraction
-        self.currency=currency
-        self.stock=stock
-        self.server=server
-        self.seller_rating=seller_rating
+    min_quantity: int
+    region: str
+    fraction: str
+    currency: str
+    stock_amount: int
+    server: str
+    seller_rating: float
+    url: str = ''
 
     def __str__(self):
-        return self.min_quantity + ' ' + self.region +' ' + self.fraction +' ' + self.currency \
-               +' ' + self.stock +' ' + self.server +' ' + self.seller_rating
+        return ' '.join(self.__dict__.values())
 
 
-def get_items_list():
-    url = 'https://www.g2g.com/wow-eu/gold-2522-19248?&page=1'
-    region = url[24:26]
-    page = requests.get(url).text
-    soup = BeautifulSoup(page,'html.parser')
-    button = soup.find("a",{'id':'lazy-load-btn'})
+class GoldParser(Thread):
+    def __init__(self, url, proxy):
+        super(GoldParser, self).__init__()
 
-    products_amount =  int(soup.find('span',{'class':'products__amount'}).text.split()[0])
-    print(products_amount)
-    products = []
-    current_page = 1
+        self.url = url
+        self.proxy = proxy
+        self.result = []
+        self.finished = False
 
-    while len(products)<products_amount:
-        url = 'https://www.g2g.com/wow-eu/gold-2522-19248?&page='+str(current_page)
+    def run(self):
+        # TODO: define number of pages. probably on the first page. and then parse from second in the loop
+        pages = 1
+        for page in range(pages):
+            try:
+                self.result.extend(self.get_items_list(page))
+            except:
+                logging.error('Error at:\n' + self.url + str(page), exc_info=True)
 
+        self.finished = True
+
+    def get_items_list(self, page=1):
+        # TODO: rewrite using enums. another ONCE parsing will be required
+        url = self.url + str(page)
+        region = 'US' if 'wow-us' in url else 'EU'
         page = requests.get(url).text
-        soup = BeautifulSoup(page, 'html.parser')
+        soup = bs(page, 'html.parser')
+
+        products = []
 
         for child in soup.findAll('li',{'class':'products__list-item js-accordion-parent'}):
             min_quantity = child.find('input',{'class':'products__count-input'}).get('value').strip()
             seller_name = child.find('a',{'class':'seller__name'}).get('href')
-            page_of_seller =requests.get('https://www.g2g.com'+seller_name).text
-            soup2=BeautifulSoup(page_of_seller, 'html.parser')
+
+            seller_url = 'https://www.g2g.com' + seller_name.strip()
+            page_of_seller = requests.get(seller_url).text
+            soup2 = bs(page_of_seller, 'html.parser')
 
             seller_rating = soup2.find('span',{'class':'user-statistic__percent'}).text
 
@@ -55,11 +105,65 @@ def get_items_list():
             currency = child.find('span', {'class': 'products__exch-rate'}).text.strip()[-3:]
             stock = child.find('span', {'class': 'products__statistic-amount'}).text.strip().split()[0]
 
-
-            item = GItem(min_quantity,region,fraction,currency,stock,server,'0')
+            item = GItem(
+                min_quantity=min_quantity,
+                region=region,
+                fraction=fraction,
+                currency=currency,
+                stock_amount=stock,
+                server=server,
+                seller_rating=seller_rating
+            )
             products.append(item)
 
-        current_page = current_page+1
-    return products
+        return products
 
-get_items_list()
+
+def parse_items(region: str, server: str, proxy: list):
+    # server: classic / bfa
+    urls = []
+    if region.lower() == 'us':
+        url = 'https://www.g2g.com/wow-us/gold-2299-19249?&server='
+        urls = [
+            url + _server['value'] + '&page='
+            for _server in (us_classic_servers
+                            if server.lower() == 'classic'
+                            else us_bfa_servers)
+        ]
+    else:
+        url = 'https://www.g2g.com/wow-eu/gold-2522-19248?&server='
+
+        urls = [url + _server['value'] + '&page=' for _server in (eu_classic_servers if server.lower() == 'classic' else eu_bfa_servers)]
+
+    print(urls)
+    if not proxy:
+        proxy = [None] * len(urls)
+    proxy_size = len(proxy)
+
+    threads = [GoldParser(urls[i], proxy[i % proxy_size]) for i in range(len(urls))]
+
+    active_threads = 0
+    finished_threads = 0
+    max_workers = 6
+
+    while finished_threads != len(threads):
+        while active_threads >= max_workers:
+            time.sleep(0.5)
+
+        for t in threads:
+            if not t.is_alive():
+                t.start()
+                break
+
+        finished_threads = sum([1 for t in threads if t.finished])
+
+    for t in threads:
+        t.join()
+
+    result = []
+    for t in threads:
+        result.extend(t.result)
+
+    return result
+
+parse_items('eu','bfa',[])
