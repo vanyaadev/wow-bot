@@ -17,20 +17,15 @@ def parse_list_of_servers(server_location: str):
     soup = bs(page, 'html.parser')
     list_of_all_servers = soup.find('select', {'name': 'server', 'id': 'server'}).findChildren()[1:]
 
-    servers_bfa = []
-    servers_classic = []
+    servers_bfa = {}
+    servers_classic = {}
 
     for server in list_of_all_servers:
         if 'Classic' in server.text:
-            servers_classic.append({
-                'value':str(server.get('value')),
-                'server_name':server.text
-            })
+            servers_classic[server.get('value')]=server.text
+
         else:
-            servers_bfa.append({
-                'value': server.get('value'),
-                'server_name': server.text
-            })
+            servers_bfa[server.get('value')]=server.text
 
     return servers_classic, servers_bfa
 
@@ -49,7 +44,9 @@ class GItem:
     stock_amount: int
     server: str
     seller_rating: float
+    #price: float
     url: str = ''
+
 
     def __str__(self):
         return ' '.join(self.__dict__.values())
@@ -63,9 +60,11 @@ class GoldParser(Thread):
         self.proxy = proxy
         self.result = []
         self.finished = False
+        self.is_started = False
 
     def run(self):
         # TODO: define number of pages. probably on the first page. and then parse from second in the loop
+        self.is_started = True;
         pages = 1
         for page in range(pages):
             try:
@@ -85,14 +84,14 @@ class GoldParser(Thread):
         products = []
 
         for child in soup.findAll('li',{'class':'products__list-item js-accordion-parent'}):
+            #YOU CAN CHECK THE WHOLE HTML OF THE OFFER!!!!!!!!!!!!!!!!!!
+            print(child.prettify())
             min_quantity = child.find('input',{'class':'products__count-input'}).get('value').strip()
             seller_name = child.find('a',{'class':'seller__name'}).get('href')
 
             seller_url = 'https://www.g2g.com' + seller_name.strip()
             page_of_seller = requests.get(seller_url).text
-            soup2 = bs(page_of_seller, 'html.parser')
 
-            seller_rating = soup2.find('span',{'class':'user-statistic__percent'}).text
 
             server_fraction = child.findAll('li', {'class': 'active'})
             if len(server_fraction)==2:
@@ -105,6 +104,16 @@ class GoldParser(Thread):
             currency = child.find('span', {'class': 'products__exch-rate'}).text.strip()[-3:]
             stock = child.find('span', {'class': 'products__statistic-amount'}).text.strip().split()[0]
 
+            url_of_item = child.find('a', {'class': 'products__name'}).get('href')
+            products_number = child.findAll('a', {'href': url_of_item})[1].text[1:-1]
+
+            soup2 = bs(page_of_seller, 'html.parser')
+            seller_rating = soup2.find('span', {'class': 'user-statistic__percent'}).text
+
+            #VOT TUT!!!!!!!!!!!!!!!!!!!
+            price = child.find('span', {'class': 'products__price-num'}).prettify()
+
+            print(price)
             item = GItem(
                 min_quantity=min_quantity,
                 region=region,
@@ -112,28 +121,29 @@ class GoldParser(Thread):
                 currency=currency,
                 stock_amount=stock,
                 server=server,
-                seller_rating=seller_rating
+                seller_rating=seller_rating,
+                url = url_of_item + seller_url
             )
             products.append(item)
 
         return products
 
 
-def parse_items(region: str, server: str, proxy: list):
+def parse_items(region: str, server: str, proxy: list,server_name=None):
     # server: classic / bfa
     urls = []
     if region.lower() == 'us':
         url = 'https://www.g2g.com/wow-us/gold-2299-19249?&server='
         urls = [
-            url + _server['value'] + '&page='
-            for _server in (us_classic_servers
+            url + _server+ '&page='
+            for _server in (us_classic_servers.keys()
                             if server.lower() == 'classic'
-                            else us_bfa_servers)
+                            else us_bfa_servers.keys())
         ]
     else:
         url = 'https://www.g2g.com/wow-eu/gold-2522-19248?&server='
 
-        urls = [url + _server['value'] + '&page=' for _server in (eu_classic_servers if server.lower() == 'classic' else eu_bfa_servers)]
+        urls = [url + _server + '&page=' for _server in (eu_classic_servers.keys() if server.lower() == 'classic' else eu_bfa_servers.keys())]
 
     print(urls)
     if not proxy:
@@ -151,7 +161,7 @@ def parse_items(region: str, server: str, proxy: list):
             time.sleep(0.5)
 
         for t in threads:
-            if not t.is_alive():
+            if not t.is_started:
                 t.start()
                 break
 
@@ -166,4 +176,5 @@ def parse_items(region: str, server: str, proxy: list):
 
     return result
 
-parse_items('eu','bfa',[])
+result = parse_items('us','classic',[])
+print(result)
