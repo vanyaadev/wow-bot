@@ -11,7 +11,7 @@ def click(driver: Chrome, element):
 
 class Bot:
 
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: Settings = None):
         self.settings = settings
         self.driver = Chrome(executable_path=os.getcwd()+'/chromedriver.exe')
 
