@@ -109,3 +109,4 @@ venv.bak/
 .idea/
 
 chromedriver.exe
+*/ChromeProfile/
