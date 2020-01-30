@@ -113,6 +113,14 @@ class Bot:
 
         click(self.driver, self.driver.find_element_by_xpath("//button[contains(text(), 'Submit')]"))
 
+    def active_orders(self, region='eu', ):
+        if region == 'eu':
+            url = 'https://www.g2g.com/sell/manage?service=1&type=1&game=2522'
+        else:
+            url = 'https://www.g2g.com/sell/manage?service=1&game=2299&type=1'
+        self.driver.get(url)
+
+
     def close(self):
         self.driver.close()
 
