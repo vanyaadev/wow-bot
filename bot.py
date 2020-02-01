@@ -1,35 +1,17 @@
+import os
+import time
 
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.support.ui import Select
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.common.by import By
 
 from settings import Settings
 from order import Order
+from utils import click, random_sleep, wait_element, enable_download_headless
 
-import os
-import time
-import random
-
-USER_DATA_DIR = os.getcwd()+'/ChromeProfile'
+# USER_DATA_DIR = os.getcwd()+'/ChromeProfile'
 USER_DATA_DIR = r'C:\Users\ianti\AppData\Local\Google\Chrome\User Data'
+DEFAULT_DOWNLOAD_DIRECTORY = os.path.join(os.getcwd(), 'Downloads')
 
-def click(driver: Chrome, element):
-    driver.execute_script("arguments[0].click()", element)
-
-def wait_element(driver: Chrome, xpath: str):
-    WebDriverWait(driver, 10).until(
-        expected_conditions.presence_of_element_located(
-            (By.XPATH, xpath)
-        )
-    )
-
-def random_sleep(a = 0.1, b = 0.2, delay = None):
-    if delay:
-        a += delay
-        b += delay
-    time.sleep(random.uniform(a, b))
 
 class Bot:
     def __init__(self, settings: Settings = None):
@@ -37,8 +19,16 @@ class Bot:
 
         opts = ChromeOptions()
         if USER_DATA_DIR:
-            opts.add_argument('user-data-dir='+USER_DATA_DIR)
-        self.driver = Chrome(executable_path=os.getcwd()+'/chromedriver.exe', options=opts)
+            opts.add_argument('user-data-dir=' + USER_DATA_DIR)
+        opts.add_experimental_option("prefs", {
+            "download.default_directory": DEFAULT_DOWNLOAD_DIRECTORY,
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "safebrowsing_for_trusted_sources_enabled": False,
+            "safebrowsing.enabled": False
+        })
+
+        self.driver = Chrome(executable_path=os.getcwd() + '/chromedriver.exe', options=opts)
 
     def authorize(self, login, password):
         self.driver.get('https://www.shasso.com/sso/login?action=login')
@@ -64,7 +54,7 @@ class Bot:
 
         wait_element(self.driver, "//h3[contains(text(), 'Product Details')]")
         random_sleep(delay=0.3)
-        #------------------------------------------------------------------------------------------
+        # ------------------------------------------------------------------------------------------
 
         server_selection = Select(self.driver.find_element_by_xpath("//select[@id='server']"))
         server_selection.select_by_visible_text(order.server)
@@ -113,12 +103,27 @@ class Bot:
 
         click(self.driver, self.driver.find_element_by_xpath("//button[contains(text(), 'Submit')]"))
 
-    def active_orders(self, region='eu', ):
+    def active_orders(self, region='eu'):
+        # create set of files that are currently in the directory
+        current_xls_files = {file for file in os.listdir(DEFAULT_DOWNLOAD_DIRECTORY)
+                             if file.endswith('.xls')}
+
         if region == 'eu':
-            url = 'https://www.g2g.com/sell/manage?service=1&type=1&game=2522'
+            url = 'https://www.g2g.com/sell/manage?service=1&game=2522&type=1'
         else:
             url = 'https://www.g2g.com/sell/manage?service=1&game=2299&type=1'
         self.driver.get(url)
+
+        enable_download_headless(self.driver, DEFAULT_DOWNLOAD_DIRECTORY)
+        click(self.driver, self.driver.find_element_by_partial_link_text('Download List'))
+        time.sleep(3)
+
+        new_file_name = {file for file in os.listdir(DEFAULT_DOWNLOAD_DIRECTORY)
+                         if file.endswith('.xls') and file not in current_xls_files}.pop()
+        new_file_path = os.path.join(DEFAULT_DOWNLOAD_DIRECTORY, new_file_name)
+
+
+        os.remove(new_file_path)
 
 
     def close(self):
@@ -127,23 +132,42 @@ class Bot:
 
 if __name__ == '__main__':
     bot = Bot()
-    #bot.authorize('funnypig1606@gmail.com', 'zaqzaq')
+    # bot.authorize('funnypig1606@gmail.com', 'zaqzaq')
     input()
 
-    order = Order(
-        region = 'eu',
-        server = 'Classic - Golemagg',
-        faction = 'Alliance',
-        stock = 99999,
-        currency = 'USD',
-        description = 'test',
-        min_unit_per_order = 99999,
-        duration = 3,
-        delivery_option = 'Face to face trade, Mail, Auction House',
-        online_hrs = 2,
-        offline_hrs = 7
-    )
-    bot.add_order(order, 1)
+
+    def test_add_order():
+        order = Order(
+            region='eu',
+            server='Classic - Golemagg',
+            faction='Alliance',
+            stock=99999,
+            currency='USD',
+            description='test',
+            min_unit_per_order=99999,
+            duration=3,
+            delivery_option='Face to face trade, Mail, Auction House',
+            online_hrs=2,
+            offline_hrs=7
+        )
+
+        order_2 = Order(
+            region='eu',
+            server='Classic - Golemagg',
+            faction='Horde',
+            stock=8888,
+            currency='USD',
+            description='test 2',
+            min_unit_per_order=8888,
+            duration=3,
+            delivery_option='Face to face trade, Mail, Auction House',
+            online_hrs=4,
+            offline_hrs=10
+        )
+
+        bot.add_order(order_2, price=1.5)
+
+    bot.active_orders()
     input()
 
     bot.close()
