@@ -67,7 +67,7 @@ class GoldParser(Thread):
 
     def run(self):
         # TODO: define number of pages. probably on the first page. and then parse from second in the loop
-        self.is_started = True;
+        self.is_started = True
         pages = 1
         for page in range(pages):
             try:
@@ -91,6 +91,7 @@ class GoldParser(Thread):
             seller_name = child.find('a',{'class':'seller__name'}).get('href')
 
             seller_url = 'https://www.g2g.com' + seller_name.strip()
+
             seller_rating = 0.0
             if(seller_url in sellers_rating.keys()):
                 seller_rating=float(sellers_rating[seller_url])
@@ -99,6 +100,8 @@ class GoldParser(Thread):
                 soup2 = bs(page_of_seller, 'html.parser')
                 seller_rating = soup2.find('span', {'class': 'user-statistic__percent'}).text[:-1]
                 sellers_rating[seller_url]=seller_rating
+
+            page_of_seller = requests.get(seller_url).text
 
             server_fraction = child.findAll('li', {'class': 'active'})
             if len(server_fraction)==2:
@@ -133,7 +136,7 @@ class GoldParser(Thread):
         return products
 
 
-def parse_items(region: str, server: str, proxy: list,server_name=None):
+def parse_items(region: str, server: str, proxy: list, server_name=None):
     # server: classic / bfa
     urls = []
     if region.lower() == 'us':
@@ -178,3 +181,9 @@ def parse_items(region: str, server: str, proxy: list,server_name=None):
         result.extend(t.result)
 
     return result
+
+  
+if __name__ == '__main__':
+    result = parse_items('us','classic',[])
+    print(result)
+
