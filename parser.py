@@ -5,6 +5,9 @@ from dataclasses import dataclass
 import logging
 import time
 
+sellers_rating = {
+
+}
 
 def parse_list_of_servers(server_location: str):
     url = ''
@@ -44,7 +47,7 @@ class GItem:
     stock_amount: int
     server: str
     seller_rating: float
-    #price: float
+    price: float
     url: str = ''
 
 
@@ -84,12 +87,20 @@ class GoldParser(Thread):
         products = []
 
         for child in soup.findAll('li',{'class':'products__list-item js-accordion-parent'}):
-            #YOU CAN CHECK THE WHOLE HTML OF THE OFFER!!!!!!!!!!!!!!!!!!
-            print(child.prettify())
-            min_quantity = child.find('input',{'class':'products__count-input'}).get('value').strip()
+            min_quantity = int(child.find('input',{'class':'products__count-input'}).get('value').strip())
             seller_name = child.find('a',{'class':'seller__name'}).get('href')
 
             seller_url = 'https://www.g2g.com' + seller_name.strip()
+
+            seller_rating = 0.0
+            if(seller_url in sellers_rating.keys()):
+                seller_rating=float(sellers_rating[seller_url])
+            else:
+                page_of_seller = requests.get(seller_url).text
+                soup2 = bs(page_of_seller, 'html.parser')
+                seller_rating = soup2.find('span', {'class': 'user-statistic__percent'}).text[:-1]
+                sellers_rating[seller_url]=seller_rating
+
             page_of_seller = requests.get(seller_url).text
 
             server_fraction = child.findAll('li', {'class': 'active'})
@@ -101,18 +112,14 @@ class GoldParser(Thread):
                 fraction = server_fraction[0].text.strip()
 
             currency = child.find('span', {'class': 'products__exch-rate'}).text.strip()[-3:]
-            stock = child.find('span', {'class': 'products__statistic-amount'}).text.strip().split()[0]
+            stock = child.find('span', {'class': 'products__statistic-amount'}).text.strip().split()[0].split(',')
+            stock = ''.join(stock)
 
             url_of_item = child.find('a', {'class': 'products__name'}).get('href')
             products_number = child.findAll('a', {'href': url_of_item})[1].text[1:-1]
 
-            soup2 = bs(page_of_seller, 'html.parser')
-            seller_rating = soup2.find('span', {'class': 'user-statistic__percent'}).text
+            price = float(child.find('span', {'class': 'products__exch-rate'}).text.strip().split()[-1][0:-3])
 
-            #VOT TUT!!!!!!!!!!!!!!!!!!!
-            price = child.find('span', {'class': 'products__price-num'}).prettify()
-
-            print(price)
             item = GItem(
                 min_quantity=min_quantity,
                 region=region,
@@ -121,7 +128,8 @@ class GoldParser(Thread):
                 stock_amount=stock,
                 server=server,
                 seller_rating=seller_rating,
-                url = url_of_item + seller_url
+                url = url_of_item + seller_url,
+                price = price
             )
             products.append(item)
 
@@ -144,7 +152,6 @@ def parse_items(region: str, server: str, proxy: list, server_name=None):
 
         urls = [url + _server + '&page=' for _server in (eu_classic_servers.keys() if server.lower() == 'classic' else eu_bfa_servers.keys())]
 
-    print(urls)
     if not proxy:
         proxy = [None] * len(urls)
     proxy_size = len(proxy)
@@ -175,7 +182,8 @@ def parse_items(region: str, server: str, proxy: list, server_name=None):
 
     return result
 
-
+  
 if __name__ == '__main__':
     result = parse_items('us','classic',[])
     print(result)
+
