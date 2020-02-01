@@ -1,5 +1,6 @@
 import os
 import time
+import xlrd
 
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.support.ui import Select
@@ -122,8 +123,57 @@ class Bot:
                          if file.endswith('.xls') and file not in current_xls_files}.pop()
         new_file_path = os.path.join(DEFAULT_DOWNLOAD_DIRECTORY, new_file_name)
 
+        wb = xlrd.open_workbook(new_file_path)
+        sh = wb.sheet_by_index(0)
+
+        orders = []
+
+        row = 9 # 10
+        while True:
+            try:
+                if sh.cell_value(row, 0) == xlrd.empty_cell.value:
+                    break
+            except IndexError:
+                break
+
+            listing_number = int(sh.cell_value(row, 0))
+            server = sh.cell_value(row, 1)
+            faction = sh.cell_value(row, 2)
+            currency = sh.cell_value(row, 3)
+            price = float(sh.cell_value(row, 4))
+            description = sh.cell_value(row, 5)
+            stock = int(sh.cell_value(row, 6))
+            min_unit_per_order = int(sh.cell_value(row, 7))
+            duration = int(sh.cell_value(row, 8))
+            delivery_option = sh.cell_value(row, 9)
+            online_hrs = int(sh.cell_value(row, 10))
+            offline_hrs = int(sh.cell_value(row, 11))
+            status = sh.cell_value(row, 12)
+
+            if status != 'Active':
+                row+=1
+                continue
+
+            order = Order(region=region,
+                          server=server,
+                          faction=faction,
+                          stock=stock,
+                          currency=currency,
+                          description=description,
+                          min_unit_per_order=min_unit_per_order,
+                          duration=duration,
+                          delivery_option=delivery_option,
+                          online_hrs=online_hrs,
+                          offline_hrs=offline_hrs,
+                          price=price,
+                          listing_number=listing_number)
+
+            orders.append(order)
+            row+=1
 
         os.remove(new_file_path)
+
+        return orders
 
 
     def close(self):

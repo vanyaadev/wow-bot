@@ -14,3 +14,5 @@ class Order:
     delivery_option: str
     online_hrs: int
     offline_hrs: int
+    price: float = None
+    listing_number: int = None
