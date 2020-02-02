@@ -49,14 +49,31 @@ class SettingsWindow(QWidget):
 
     def set_value(self, widget, param):
         try:
-            value = type(self.settings.get_value(param))(widget.text())
+            value = type(self.settings.get_value(param))(widget.text()
+                                                         if type(widget) == QLineEdit
+                                                         else widget.toPlainText())
             self.settings.set_val(param, value)
-            widget.setStylesheet('backround: white')
+            widget.setStyleSheet('background: white')
         except ValueError:
-            widget.setStylesheet('backround: pink')
+            widget.setStyleSheet('background: pink')
 
     def set_list(self, widget, param):
-        pass
+        try:
+            value = (widget.text()
+                     if type(widget) == QLineEdit
+                     else widget.toPlainText()).split('\n')
+            self.settings.set_val(param, value)
+            widget.setStyleSheet('background: white')
+        except:
+            widget.setStyleSheet('background: pink')
+
+    def text_changed(self, *args):
+        editor_iterator = iter(self.editor_widgets)
+        for param, value in self.settings.__dict__.items():
+            if type(value) == list:
+                self.set_list(editor_iterator.__next__(), param)
+            else:
+                self.set_value(editor_iterator.__next__(), param)
 
     def init_widgets(self):
         self.label_font = QFont('Arial', 12)
@@ -72,10 +89,10 @@ class SettingsWindow(QWidget):
 
             if type(value) == list:
                 editor = QTextEdit('\n'.join(self.settings.get_value(param)))
-                editor.textChanged.connect(lambda text: self.set_list(editor, param))
+                editor.textChanged.connect(self.text_changed)
             else:
                 editor = QLineEdit(str(self.settings.get_value(param)))
-                editor.textChanged.connect(lambda text: self.set_value(editor, param))
+                editor.textChanged.connect(self.text_changed)
             editor.setFont(self.editor_font)
 
             self.grid.addWidget(label, len(self.editor_widgets), 0)
@@ -83,6 +100,7 @@ class SettingsWindow(QWidget):
             self.editor_widgets.append(editor)
 
         self.setLayout(self.grid)
+
 
 class MainWindow(QMainWindow):
     def __init__(self):

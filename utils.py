@@ -10,8 +10,8 @@ def click(driver: Chrome, element):
     driver.execute_script("arguments[0].click()", element)
 
 
-def wait_element(driver: Chrome, xpath: str):
-    WebDriverWait(driver, 10).until(
+def wait_element(driver: Chrome, xpath: str, timeout=10):
+    WebDriverWait(driver, timeout).until(
         expected_conditions.presence_of_element_located(
             (By.XPATH, xpath)
         )
