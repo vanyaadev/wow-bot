@@ -3,7 +3,7 @@ import sys
 import os
 import logging
 
-logging.basicConfig(level=logging.ERROR, filename='error.txt', filemode='a')
+logging.basicConfig(level=logging.INFO, filename='LOG.txt', filemode='a')
 
 
 # ------------------------------------------------------------------------------------------------

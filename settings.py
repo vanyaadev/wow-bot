@@ -4,14 +4,14 @@ import json
 class Settings:
 
     def __init__(self):
-        self.change_order_time = 0              # type: int
-        self.delivery_time = 0                  # type: int
-        self.ignore_nicknames = []              # type: list[str]
-        self.ignore_gold_amount = 0             # type: int
-        self.gold_amount = 0                    # type: int
-        self.ignore_sellers_by_delivery = []    # type: list[int]
-        self.ignore_sellers_by_level = []       # type: list[int]
-        self.ignore_sellers_by_min_price = []   # type: list[float]
+        self.change_order_time = 0                  # type: int
+        self.delivery_time = 0                      # type: int
+        self.ignore_nicknames = []                  # type: list[str]
+        self.ignore_gold_amount = 0                 # type: int
+        self.gold_amount = 0                        # type: int
+        self.ignore_sellers_by_delivery = 10**12    # type: int
+        self.ignore_sellers_by_level = 0            # type: float
+        self.ignore_sellers_by_min_price = 10**12   # type: float
 
     def set_val(self, param, value):
         if param in self.__dict__:

@@ -16,6 +16,10 @@ from telegram_bot import TelegramBot
 USER_DATA_DIR = r'C:\Users\ianti\AppData\Local\Google\Chrome\User Data'
 DEFAULT_DOWNLOAD_DIRECTORY = os.path.join(os.getcwd(), 'Downloads')
 
+if not os.path.exists(DEFAULT_DOWNLOAD_DIRECTORY):
+    os.mkdir(DEFAULT_DOWNLOAD_DIRECTORY)
+
+
 class Bot:
     def __init__(self, settings: Settings = None):
         self.settings = settings
@@ -45,6 +49,8 @@ class Bot:
         click(self.driver, self.driver.find_element_by_xpath("//button[text()='Login']"))
 
     def add_order(self, order: Order, price: float):
+        logging.info(f'[{dt.datetime.now().isoformat()}] Add order: [{order}] with price {price}')
+
         self.driver.get('https://www.g2g.com/sell/index')
 
         try:
@@ -114,6 +120,8 @@ class Bot:
             logging.info(f'[{dt.datetime.now().isoformat()}] Error adding order: ' + str(e))
 
     def active_orders(self, region='eu'):
+        logging.info(f'[{dt.datetime.now().isoformat()}] Started parsing active orders. Region: {region}')
+
         orders = []
         try:
             # create set of files that are currently in the directory
@@ -137,7 +145,7 @@ class Bot:
             wb = xlrd.open_workbook(new_file_path)
             sh = wb.sheet_by_index(0)
 
-            row = 9 # 10
+            row = 9  # 10
             while True:
                 try:
                     if sh.cell_value(row, 0) == xlrd.empty_cell.value:
@@ -160,7 +168,7 @@ class Bot:
                 status = sh.cell_value(row, 12)
 
                 if status != 'Active':
-                    row+=1
+                    row += 1
                     continue
 
                 order = Order(region=region,
@@ -178,12 +186,13 @@ class Bot:
                               listing_number=listing_number)
 
                 orders.append(order)
-                row+=1
+                row += 1
 
             os.remove(new_file_path)
         except Exception as e:
             logging.info(f'[{dt.datetime.now().isoformat()}] Error parsing active orders: ' + str(e))
 
+        logging.info(f'[{dt.datetime.now().isoformat()}] Parsed active orders successfully. Return {len(orders)} orders')
         return orders
 
     def parse_messages(self):
@@ -191,7 +200,7 @@ class Bot:
         time.sleep(1)
         wait_element(self.driver, "//input[@placeholder='Search']", timeout=30)
 
-        usernames = list(map(lambda div: div.text.strip(),
+        usernames = list(map(lambda _div: _div.text.strip(),
                              self.driver.find_elements_by_class_name('e0e0377cd4a6e9dcec5b509beb659b00')))
 
         # FIRST PARSING
@@ -203,10 +212,10 @@ class Bot:
             return
 
         try:
-            for chat_number in range(5):
+            for chat_number in range(3):
                 try:
                     username = usernames[chat_number]
-                    if not username in self.chat_messages:
+                    if username not in self.chat_messages:
                         self.chat_messages[username] = ['']
 
                     click(self.driver,
@@ -214,7 +223,7 @@ class Bot:
 
                     try:
                         wait_element(self.driver, "//div[@message-id]", timeout=20)
-                    except TimeoutError:    # No messages
+                    except TimeoutError:  # No messages
                         continue
                     time.sleep(2)
 
@@ -224,13 +233,13 @@ class Bot:
                     if new_messages[-1].split('\n')[0] == self.chat_messages[username][-1].split('\n')[0]:
                         continue
 
-                    new_messages_start_index = len(new_messages)-1
+                    new_messages_start_index = len(new_messages) - 1
 
-                    while new_messages_start_index>0:
+                    while new_messages_start_index > 0:
                         if new_messages[new_messages_start_index].split('\n')[0] == \
                                 self.chat_messages[username][-1].splt('\n')[0]:
                             break
-                        new_messages_start_index-=1
+                        new_messages_start_index -= 1
                     new_messages = new_messages[new_messages_start_index:]
 
                     msg_to_send = username + '\n' + '\n\n'.join([
@@ -243,7 +252,7 @@ class Bot:
 
                 except Exception as e:
                     logging.info(f'[{dt.datetime.now().isoformat()}] Error parsing chat '
-                                                + usernames[chat_number] + ': ' + str(e))
+                                 + usernames[chat_number] + ': ' + str(e))
         except Exception as e:
             logging.info(f'[{dt.datetime.now().isoformat()}] Error parsing chats: ' + str(e))
 
@@ -288,9 +297,11 @@ if __name__ == '__main__':
 
         bot.add_order(order_2, price=1.5)
 
+
     def test_parse_active_orders():
         bot.active_orders()
         input()
+
 
     def test_parse_new_messages():
         while True:
@@ -300,6 +311,7 @@ if __name__ == '__main__':
             print()
 
             bot.parse_messages()
+
 
     test_parse_new_messages()
 
