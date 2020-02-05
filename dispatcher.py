@@ -10,6 +10,8 @@ from settings import Settings
 from parser import GItem, GoldParser, make_url
 from utils import make_proxy
 
+PRICE_STEP = 0.00001
+
 
 class Dispatcher(Thread):
     def __init__(self,
@@ -155,11 +157,14 @@ class Dispatcher(Thread):
     def process_classic_orders(self):
         logging.info(f'[{dt.datetime.now().isoformat()}] Process orders started')
 
-        for order in self.active_orders_eu:
+        selected_prices = {}
+
+        for order in self.active_orders_eu + self.active_orders_us:
             logging.info(f'[{dt.datetime.now().isoformat()}] Take order: #{order.listing_number}')
+            SELECTED_PRICE = None
 
             settings = self.classic_settings if 'classic' in order.server.lower() else self.bfa_settings
-            items = self.get_items_by_server('eu', order.faction, order.server)
+            items = self.get_items_by_server(order.region, order.faction, order.server)
             # take first 5 items
 
             # STEP 1
@@ -167,19 +172,58 @@ class Dispatcher(Thread):
             all_gold_is_less_than = all(sellers_gold)
             just_one_more_than = items[0].stock_amount > settings.gold_amount and all(sellers_gold[1:])
 
+            percent_difference = lambda p1, p2: p1 / p2 - 1
             # STEP 2
             if all_gold_is_less_than:
-                percent_difference = lambda p1, p2: p1 / p2 - 1
 
                 compare_percent_difference = [
-                    [percent_difference(items[i].price, items[j].price)] for i in range(5) for j in range(5)
+                    [percent_difference(items[i].price, items[j].price) for j in range(5)] for i in range(5)
                 ]
 
                 # 2.1
-                if all(perc_dif > 0.02 for row in compare_percent_difference for perc_dif in row):
-                    
+                if all(perc_dif < 0.02 for row in compare_percent_difference for perc_dif in row) and \
+                        sum([i.stock_amount for i in items[:5]]) > settings.gold_amount:
+                    for i in range(5):
+                        if items[i].stock_amount > settings.gold_amount_22:
 
+                            SELECTED_PRICE = items[i].price - PRICE_STEP
+                            logging.info(f'[{dt.datetime.now().isoformat()}]'+
+                                         f' Order: #{order.listing_number} price {SELECTED_PRICE} selected at step 2.1')
+                            break
 
+                # 2.2
+                if any(perc_dif > 0.02 for row in compare_percent_difference for perc_dif in row) and \
+                        sum([i.stock_amount for i in items[:5]]):
+                    for i in range(5):
+                        for j in range(5):
+                            if compare_percent_difference[i][j] > 0.02:
+                                SELECTED_PRICE = (items[i].price + items[j].price) / 2
+                                logging.info(f'[{dt.datetime.now().isoformat()}]' +
+                                             f' Order: #{order.listing_number} price {SELECTED_PRICE} selected at step 2.2')
+                                break
+
+                        if SELECTED_PRICE:
+                            break
+
+            # STEP 3
+            if just_one_more_than:
+                avr_price = sum([i.price for i in items[2:5]]) / 4
+                perc_diff = percent_difference(avr_price, items[0].price)
+
+                if perc_diff < 0.07 or \
+                    (0.07 <= perc_diff <= 0.12 and
+                     items[0].stock_amount > settings.gold_amount * 2 and
+                     items[0].seller_professional_level > 100
+                    ):
+
+                    SELECTED_PRICE = items[0].price - PRICE_STEP
+
+                    logging.info(f'[{dt.datetime.now().isoformat()}]' +
+                                 f' Order: #{order.listing_number} price {SELECTED_PRICE} selected at step 3')
+
+            selected_prices[order.listing_number] = SELECTED_PRICE
+
+        return selected_prices
 
     # Manage thread methods
 

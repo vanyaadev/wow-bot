@@ -67,6 +67,7 @@ class GItem:
     seller_rating: float
     delivery_time: int
     price: float
+    seller_professional_level: int
     url: str = ''
 
     def __str__(self):
@@ -146,6 +147,11 @@ class GoldParser(Thread):
                 seller_rating = soup2.find('span', {'class': 'user-statistic__percent'}).text[:-1]
                 sellers_rating[seller_url] = seller_rating
 
+            try:
+                seller_prof_level = int(child.find('span', class_='seller__level-icon-counter').text)
+            except:
+                seller_prof_level = 0
+
             server_fraction = child.findAll('li', {'class': 'active'})
             if len(server_fraction) == 2:
                 server = server_fraction[0].text.strip()
@@ -175,6 +181,7 @@ class GoldParser(Thread):
                 seller_name=seller_name,
                 delivery_time=delivery_time,
                 url=url_of_item,
+                seller_professional_level=seller_prof_level,
                 price=price
             )
             products.append(item)

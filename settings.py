@@ -9,6 +9,7 @@ class Settings:
         self.ignore_nicknames = []                  # type: list[str]
         self.ignore_gold_amount = 0                 # type: int
         self.gold_amount = 0                        # type: int
+        self.gold_amount_22 = 0                      # type: int
         self.ignore_sellers_by_delivery = 10**12    # type: int
         self.ignore_sellers_by_level = 0            # type: float
         self.ignore_sellers_by_min_price = 10**12   # type: float
