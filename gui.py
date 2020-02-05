@@ -29,13 +29,14 @@ _append_run_path()
 # -------------------------------------------------------------------------------------------------
 
 import json
+import time
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from settings import Settings
-
+from dispatcher import Dispatcher
 
 class SettingsWindow(QWidget):
     def __init__(self, settings: Settings = None):
@@ -122,7 +123,13 @@ class MainWindow(QMainWindow):
 
         self.init_widgets()
 
+        self.dispatcher = Dispatcher(self.classic_settings, self.bfa_settings)
+        self.dispatcher.start() # it is paused now and ready to start
+
     def init_widgets(self):
+
+        # Init settings windows
+
         open_classic_settings = QAction('Classic', self)
         open_bfa_settings = QAction('BFA', self)
 
@@ -132,8 +139,69 @@ class MainWindow(QMainWindow):
         self.menuBar().addAction(open_classic_settings)
         self.menuBar().addAction(open_bfa_settings)
         self.open_classic_settings()
+
+        # Init buttons
+        self.toolbar = QToolBar()
+        self.toolbar.setStyleSheet('''
+            font-family: Serif;
+            font-size: 16px;
+            font-weight: bold;
+        ''')
+
+
+        self.start_button = QAction('Start', self)
+        self.start_button.triggered.connect(self.start_button_clicked)
+        self.toolbar.addAction(self.start_button)
+
+        self.update_from_excel_button = QAction('Add/Update from xls', self)
+        self.update_from_excel_button.triggered.connect(self.update_from_excel_button_clicked)
+        self.toolbar.addAction(self.update_from_excel_button)
+
+        self.scan_now = QAction('Scan now', self)
+        self.scan_now.triggered.connect(self.scan_now_clicked)
+        self.toolbar.addAction(self.scan_now)
+
+        self.activate_orders = QAction('Activate all orders', self)
+        self.activate_orders.triggered.connect(self.activate_orders_clicked)
+        self.toolbar.addAction(self.activate_orders)
+
+        self.addToolBar(self.toolbar)
+
         self.setGeometry(200, 200, 600, 400)
         self.show()
+
+    def start_button_clicked(self):
+        if self.start_button.text() == 'Start':
+            self.dispatcher.unpause()
+            self.start_button.setText('Stop')
+        else:
+            self.dispatcher.pause()
+            self.start_button.setText('Start')
+
+    def update_from_excel_button_clicked(self):
+        pass
+
+    def scan_now_clicked(self):
+        self.dispatcher.classic_last_update = 0
+        self.dispatcher.bfa_last_update = 0
+
+    def activate_orders_clicked(self):
+        was_paused = self.dispatcher.paused
+        self.dispatcher.pause()
+        while not self.dispatcher.pause_accepted:
+            time.sleep(1)
+
+        self.dispatcher.activate_all_orders()
+        self.dispatcher.paused = was_paused
+
+    def deactivate_orders_clicked(self):
+        was_paused = self.dispatcher.paused
+        self.dispatcher.pause()
+        while not self.dispatcher.pause_accepted:
+            time.sleep(1)
+
+        self.dispatcher.deactivate_all_orders()
+        self.dispatcher.paused = was_paused
 
     def open_classic_settings(self):
         self.setWindowTitle('Classic settings')

@@ -1,4 +1,4 @@
-
+import os
 import time
 import logging
 import datetime as dt
@@ -7,7 +7,7 @@ from threading import Thread
 
 from bot import Bot
 from settings import Settings
-from parser import GItem, GoldParser, make_url
+from parser_items import GItem, GoldParser, make_url
 from utils import make_proxy
 
 PRICE_STEP = 0.00001
@@ -25,24 +25,53 @@ class Dispatcher(Thread):
         self.classic_settings = classic_settings
         self.bfa_settings = bfa_settings
 
+        self.classic_orders_last_update = 0
+        self.bfa_orders_last_update = 0
+
+        self.skip_classic = False
+        self.skip_bfa = False
+
         self.classic_last_update = 0
         self.bfa_last_update = 0
 
         self.killed = False
-        self.paused = False
+        self.paused = True
         self.pause_accepted = False
 
         self.proxy_list = []
-        with open('proxy_list.txt', 'r', encoding='utf-8') as file:
-            for line in file.read().split('\n'):
-                if line.strip() == '':
-                    continue
-                self.proxy_list.append(make_proxy(line))
+
+        if os.path.exists('proxy_list.txt'):
+            with open('proxy_list.txt', 'r', encoding='utf-8') as file:
+                for line in file.read().split('\n'):
+                    if line.strip() == '':
+                        continue
+                    self.proxy_list.append(make_proxy(line))
+
 
     # Run
 
     def run(self):
         while not self.killed:
+            while self.paused:  # wait for unpause
+                self.pause_accepted = True
+                time.sleep(0.5)
+
+            self.pause_accepted = False
+
+            # Accept commands from gui
+
+
+            if time.time() - self.classic_last_update > self.classic_settings.change_order_time * 60:
+                self.skip_classic = False
+
+            if time.time() - self.bfa_last_update > self.bfa_settings.change_order_time * 60:
+                self.skip_bfa = False
+
+            if self.skip_bfa and self.skip_classic:
+                time.sleep(1)
+                continue
+
+            # Work
             logging.info(f'[{dt.datetime.now().isoformat()}] New cycle started')
 
             self.active_orders_eu = self.bot.active_orders('eu')    # type: list[Order]
@@ -52,11 +81,13 @@ class Dispatcher(Thread):
 
             self.process_orders()
 
-            while self.paused:  # wait for unpause
-                self.pause_accepted = True
-                time.sleep(0.5)
+            if not self.skip_classic:
+                self.classic_last_update = time.time()
+            if not self.skip_bfa:
+                self.bfa_last_update = time.time()
 
-            self.pause_accepted = False
+            time.sleep(1)
+
 
     # Process items methods
 
@@ -68,13 +99,24 @@ class Dispatcher(Thread):
         servers_to_parse_us_horde = set()
         servers_to_parse_us_alliance = set()
         for ao in self.active_orders_eu:
+            if self.skip_classic and 'classic' in ao.server.lower():
+                continue
+            if self.skip_bfa and 'classic' not in ao.server.lower():
+                continue
+
             (servers_to_parse_eu_horde
              if ao.faction.lower() == 'horde'
              else servers_to_parse_eu_alliance).add(ao.server)
         for ao in self.active_orders_us:
+            if self.skip_classic and 'classic' in ao.server.lower():
+                continue
+            if self.skip_bfa and 'classic' not in ao.server.lower():
+                continue
+
             (servers_to_parse_us_horde
              if ao.faction.lower() == 'horde'
              else servers_to_parse_us_alliance).add(ao.server)
+
 
         number_of_parsers = len(servers_to_parse_eu_alliance) + len(servers_to_parse_eu_horde) + \
                             len(servers_to_parse_us_alliance) + len(servers_to_parse_us_horde)
@@ -123,7 +165,8 @@ class Dispatcher(Thread):
 
         logging.info(f'[{dt.datetime.now().isoformat()}] Parse items prices finished')
 
-    def filter_items(self, items: list[GItem]):
+    def filter_items(self, items: list):
+        items = items # type: list[GItem]
         logging.info(f'[{dt.datetime.now().isoformat()}] Filtering parsed items')
 
         filtered_items = []
@@ -151,15 +194,15 @@ class Dispatcher(Thread):
 
         return [item for item in items if item.server == server]
 
-
     # Process orders methods
 
-    def process_classic_orders(self):
+    def process_orders(self):
         logging.info(f'[{dt.datetime.now().isoformat()}] Process orders started')
 
         selected_prices = {}
 
         for order in self.active_orders_eu + self.active_orders_us:
+
             logging.info(f'[{dt.datetime.now().isoformat()}] Take order: #{order.listing_number}')
             SELECTED_PRICE = None
 
@@ -225,10 +268,19 @@ class Dispatcher(Thread):
 
         return selected_prices
 
+    def activate_all_orders(self):
+        pass
+
+    def deactivate_all_orders(self):
+        pass
+
     # Manage thread methods
 
     def kill(self):
         self.killed = True
 
     def pause(self):
-        self.paused = not self.paused
+        self.paused = True
+
+    def unpause(self):
+        self.paused = False

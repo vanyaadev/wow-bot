@@ -1,0 +1,12 @@
+INFO:root:[2020-02-05T21:43:06.393180] Activate all orders started
+INFO:root:[2020-02-05T21:44:18.932996] Activate all orders started
+INFO:root:[2020-02-05T21:45:44.128862] Activate all orders started
+INFO:root:[2020-02-05T21:48:59.892942] Activate all orders started
+INFO:root:[2020-02-05T21:51:56.366651] Activate all orders started
+INFO:root:[2020-02-05T21:52:11.664196] Deactivate all orders started
+INFO:root:[2020-02-05T21:54:00.482731] Activate all orders started
+INFO:root:[2020-02-05T21:55:20.096232] Deactivate all orders started
+INFO:root:[2020-02-05T21:56:40.206826] Activate all orders started
+INFO:root:[2020-02-05T21:56:47.091999] Orders activated
+INFO:root:[2020-02-05T21:56:51.385866] Deactivate all orders started
+INFO:root:[2020-02-05T21:56:57.839980] Orders deactivated

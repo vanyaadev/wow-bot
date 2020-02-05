@@ -3,14 +3,17 @@ import time
 import xlrd
 import logging
 import datetime as dt
+import sys
 
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.support.ui import Select
 
 from settings import Settings
 from order import Order
-from utils import click, random_sleep, wait_element, enable_download_headless
+from utils import click, random_sleep, wait_element, enable_download_headless, orders_from_excel
 from telegram_bot import TelegramBot
+
+logging.basicConfig(level=logging.INFO, filename='LOG.txt', filemode='a')
 
 # USER_DATA_DIR = os.getcwd()+'/ChromeProfile'
 USER_DATA_DIR = r'C:\Users\ianti\AppData\Local\Google\Chrome\User Data'
@@ -119,7 +122,76 @@ class Bot:
         except Exception as e:
             logging.info(f'[{dt.datetime.now().isoformat()}] Error adding order: ' + str(e))
 
-    def active_orders(self, region='eu'):
+    def change_order(self, order: Order):
+        logging.info(f'[{dt.datetime.now().isoformat()}] Changing order #{order.listing_number}')
+
+        if order.region.lower() == 'eu':
+            self.driver.get('https://www.g2g.com/sell/manage?service=1&game=2522&type=0')
+        else:
+            self.driver.get('https://www.g2g.com/sell/manage?service=1&game=2299')
+
+        try:
+            tr = self.driver.find_element_by_id(f'c2c_{order.listing_number}')
+        except:
+            logging.info(f'[{dt.datetime.now().isoformat()}] Order #{order.listing_number} not changed! Reason: not found')
+            return
+
+        def change_field(text):
+            wait_element(self.driver, '//span[@class="editable-clear-x"]', timeout=2)
+            click(self.driver, self.driver.find_element_by_class_name('editable-clear-x'))
+            random_sleep()
+            self.driver.find_element_by_class_name('input-large').send_keys(str(text))
+            click(self.driver, self.driver.find_element_by_xpath("//button[@class='btn btn--green editable-submit']"))
+            random_sleep(delay=0.5)
+
+        try:
+            class_name = ['g2g_actual_quantity', 'g2g_minimum_quantity', 'g2g_products_price']
+            value = [str(order.stock), str(order.min_unit_per_order), str(order.price)]
+
+            for i in range(len(class_name)):
+                wait_element(self.driver, f'//a[contains(@class, "{class_name[i]}")]', timeout=2)
+                field_to_write = tr.find_element_by_class_name(class_name[i])
+                if field_to_write.text.strip() != value[i]:
+                    click(self.driver, field_to_write)
+                    random_sleep(delay=0.1)
+                    change_field(value[i])
+
+                    field_name = class_name[i][4:]
+                    logging.info(
+                        f'[{dt.datetime.now().isoformat()}] ' +
+                        f'Order #{order.listing_number} Field "{field_name}" changed to {value[i]}')
+
+            # CHANGE ONLINE / OFFLINE HOURS
+
+            selection_classes = ['g2g_online_hr', 'g2g_offline_hr']
+            selection_values = [str(order.online_hrs), str(order.offline_hrs)]
+
+            for i in range(len(selection_classes)):
+                wait_element(self.driver, f'//a[contains(@class, "{class_name[i]}")]', timeout=2)
+                field_to_write = tr.find_element_by_class_name(selection_classes[i])
+                if field_to_write.text.strip() != selection_values[i]:
+                    click(self.driver, field_to_write)
+                    random_sleep(delay=0.1)
+
+                    selection = Select(self.driver.find_element_by_class_name('input-large'))
+                    selection.select_by_visible_text(selection_values[i])
+                    click(self.driver, self.driver.find_element_by_xpath("//button[@class='btn btn--green editable-submit']"))
+                    random_sleep(delay=0.5)
+
+                    field_name = selection_classes[i][4:]
+                    logging.info(
+                        f'[{dt.datetime.now().isoformat()}] ' +
+                        f'Order #{order.listing_number} Field "{field_name}" changed to {selection_values[i]}')
+
+        except:
+            logging.info(f'[{dt.datetime.now().isoformat()}] Order #{order.listing_number} not changed! Error: ' +
+                         str(sys.exc_info()[0]))
+            return
+
+        time.sleep(1)
+        logging.info(f'[{dt.datetime.now().isoformat()}] Order #{order.listing_number} successfully changed')
+
+    def active_orders(self, region='eu', just_active = False):
         logging.info(f'[{dt.datetime.now().isoformat()}] Started parsing active orders. Region: {region}')
 
         orders = []
@@ -142,51 +214,7 @@ class Bot:
                              if file.endswith('.xls') and file not in current_xls_files}.pop()
             new_file_path = os.path.join(DEFAULT_DOWNLOAD_DIRECTORY, new_file_name)
 
-            wb = xlrd.open_workbook(new_file_path)
-            sh = wb.sheet_by_index(0)
-
-            row = 9  # 10
-            while True:
-                try:
-                    if sh.cell_value(row, 0) == xlrd.empty_cell.value:
-                        break
-                except IndexError:
-                    break
-
-                listing_number = int(sh.cell_value(row, 0))
-                server = sh.cell_value(row, 1)
-                faction = sh.cell_value(row, 2)
-                currency = sh.cell_value(row, 3)
-                price = float(sh.cell_value(row, 4))
-                description = sh.cell_value(row, 5)
-                stock = int(sh.cell_value(row, 6))
-                min_unit_per_order = int(sh.cell_value(row, 7))
-                duration = int(sh.cell_value(row, 8))
-                delivery_option = sh.cell_value(row, 9)
-                online_hrs = int(sh.cell_value(row, 10))
-                offline_hrs = int(sh.cell_value(row, 11))
-                status = sh.cell_value(row, 12)
-
-                if status != 'Active':
-                    row += 1
-                    continue
-
-                order = Order(region=region,
-                              server=server,
-                              faction=faction,
-                              stock=stock,
-                              currency=currency,
-                              description=description,
-                              min_unit_per_order=min_unit_per_order,
-                              duration=duration,
-                              delivery_option=delivery_option,
-                              online_hrs=online_hrs,
-                              offline_hrs=offline_hrs,
-                              price=price,
-                              listing_number=listing_number)
-
-                orders.append(order)
-                row += 1
+            orders = orders_from_excel(new_file_path, just_active=True)
 
             os.remove(new_file_path)
         except Exception as e:
@@ -195,7 +223,59 @@ class Bot:
         logging.info(f'[{dt.datetime.now().isoformat()}] Parsed active orders successfully. Return {len(orders)} orders')
         return orders
 
+    def activate_all(self):
+        logging.info(f'[{dt.datetime.now().isoformat()}] Activate all orders started')
+
+        def activate():
+            try:
+                click(self.driver, self.driver.find_element_by_id('check-all'))
+            except:  # No inactive orders
+                return
+
+            for span in self.driver.find_elements_by_class_name('manage__action-text'):
+                if 'relist' in span.text.lower():
+                    click(self.driver, span)
+                    break
+
+            time.sleep(1)
+            click(self.driver, self.driver.find_element_by_xpath("//button[@class='btn btn--green product-action-page']"))
+
+        self.driver.get('https://www.g2g.com/sell/manage?service=1&game=2522&type=2')
+        activate()
+
+        self.driver.get('https://www.g2g.com/sell/manage?service=1&game=2299&type=2')
+        activate()
+
+        logging.info(f'[{dt.datetime.now().isoformat()}] Orders activated')
+
+    def deactivate_all(self):
+        logging.info(f'[{dt.datetime.now().isoformat()}] Deactivate all orders started')
+
+        def deactivate():
+            try:
+                click(self.driver, self.driver.find_element_by_id('check-all'))
+            except: # No inactive orders
+                return
+
+            for span in self.driver.find_elements_by_class_name('manage__action-text'):
+                if 'deactivate' in span.text.lower():
+                    click(self.driver, span)
+                    break
+
+            time.sleep(1)
+            click(self.driver, self.driver.find_element_by_xpath("//button[@class='btn btn--green product-action-page']"))
+
+        self.driver.get('https://www.g2g.com/sell/manage?service=1&game=2522&type=1')
+        deactivate()
+
+        self.driver.get('https://www.g2g.com/sell/manage?service=1&game=2299&type=1')
+        deactivate()
+
+        logging.info(f'[{dt.datetime.now().isoformat()}] Orders deactivated')
+
     def parse_messages(self):
+        logging.info(f'[{dt.datetime.now().isoformat()}] Parse messages started')
+
         self.driver.get('https://chat.g2g.com/')
         time.sleep(1)
         wait_element(self.driver, "//input[@placeholder='Search']", timeout=30)
@@ -313,6 +393,32 @@ if __name__ == '__main__':
             bot.parse_messages()
 
 
-    test_parse_new_messages()
+    def test_change_order():
 
+        order = Order(
+            region='us',
+            server='Classic - Smolderweb',
+            faction='Horde',
+            stock=1523,
+            currency='USD',
+            description='test',
+            min_unit_per_order=532,
+            duration=3,
+            delivery_option='Face to face trade, Mail, Auction House',
+            online_hrs=2,
+            offline_hrs=6,
+            listing_number=4198011,
+            price=0.888888
+        )
+
+        bot.change_order(order)
+
+
+    def test_activation():
+        bot.activate_all()
+        input()
+        bot.deactivate_all()
+
+    test_activation()
+    time.sleep(5)
     bot.close()
