@@ -142,3 +142,92 @@ INFO:root:[2020-02-06T10:29:03.295979] Started parsing active orders. Region: us
 INFO:root:[2020-02-06T10:29:09.342164] Parsed active orders successfully. Return 2 orders
 INFO:root:[2020-02-06T10:29:09.346154] Parse items prices started
 INFO:root:[2020-02-06T10:29:37.523623] Filtering parsed items
+INFO:root:[2020-02-06T10:37:22.612188] New cycle started
+INFO:root:[2020-02-06T10:37:22.612188] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:37:28.647958] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:37:28.647958] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:37:34.313013] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:37:34.314012] Parse items prices started
+INFO:root:[2020-02-06T10:38:22.592335] Filtering parsed items
+INFO:root:[2020-02-06T10:38:22.592335] Filtering parsed items
+INFO:root:[2020-02-06T10:38:22.593336] Parse items prices finished
+INFO:root:[2020-02-06T10:38:22.595361] Process orders started
+INFO:root:[2020-02-06T10:38:22.595361] Take order: #4198011
+INFO:root:[2020-02-06T10:39:15.818291] New cycle started
+INFO:root:[2020-02-06T10:39:15.818291] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:39:21.925275] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:39:21.925275] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:39:28.365355] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:39:28.366352] Parse items prices started
+INFO:root:[2020-02-06T10:40:15.098963] Filtering parsed items
+INFO:root:[2020-02-06T10:40:15.099960] Filtering parsed items
+INFO:root:[2020-02-06T10:40:15.100959] Parse items prices finished
+INFO:root:[2020-02-06T10:40:15.103950] Process orders started
+INFO:root:[2020-02-06T10:40:15.103950] Take order: #4198011
+INFO:root:[2020-02-06T10:40:24.413897] Take order: #4186024
+INFO:root:[2020-02-06T10:40:38.920921] New cycle started
+INFO:root:[2020-02-06T10:40:38.920921] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:40:45.098241] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:40:45.099239] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:40:50.600885] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:40:50.601858] Parse items prices started
+INFO:root:[2020-02-06T10:41:04.336278] Filtering parsed items
+INFO:root:[2020-02-06T10:41:04.337275] Filtering parsed items
+INFO:root:[2020-02-06T10:41:04.337275] Parse items prices finished
+INFO:root:[2020-02-06T10:41:04.338273] Process orders started
+INFO:root:[2020-02-06T10:41:04.338273] Take order: #4198011
+INFO:root:[2020-02-06T10:42:24.752104] Take order: #4186024
+INFO:root:[2020-02-06T10:43:12.593273] New cycle started
+INFO:root:[2020-02-06T10:43:12.593273] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:43:18.478480] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:43:18.479479] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:43:23.818520] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:43:23.819517] Parse items prices started
+INFO:root:[2020-02-06T10:43:36.592343] Filtering parsed items
+INFO:root:[2020-02-06T10:43:36.592343] Filtering parsed items
+INFO:root:[2020-02-06T10:43:36.593340] Parse items prices finished
+INFO:root:[2020-02-06T10:43:36.595334] Process orders started
+INFO:root:[2020-02-06T10:43:36.595334] Take order: #4198011
+INFO:root:[2020-02-06T10:43:41.666481] Take order: #4186024
+INFO:root:[2020-02-06T10:46:18.304917] New cycle started
+INFO:root:[2020-02-06T10:46:18.304917] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:46:24.589109] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:46:24.589109] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:46:30.085902] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:46:30.085902] Parse items prices started
+INFO:root:[2020-02-06T10:47:11.192221] Filtering parsed items
+INFO:root:[2020-02-06T10:47:11.193220] Filtering parsed items
+INFO:root:[2020-02-06T10:47:11.193220] Parse items prices finished
+INFO:root:[2020-02-06T10:47:11.195248] Process orders started
+INFO:root:[2020-02-06T10:47:11.196229] Take order: #4198011
+INFO:root:[2020-02-06T10:48:47.116719] Take order: #4186024
+INFO:root:[2020-02-06T10:49:58.289251] New cycle started
+INFO:root:[2020-02-06T10:49:58.289251] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:50:04.979791] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:50:04.979791] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:50:10.801615] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:50:10.802610] Parse items prices started
+INFO:root:[2020-02-06T10:50:22.729962] Filtering parsed items
+INFO:root:[2020-02-06T10:50:22.730920] Filtering parsed items
+INFO:root:[2020-02-06T10:50:22.730920] Parse items prices finished
+INFO:root:[2020-02-06T10:50:22.732953] Process orders started
+INFO:root:[2020-02-06T10:50:22.733954] Take order: #4198011
+INFO:root:[2020-02-06T10:50:36.051622] Take order: #4186024
+INFO:root:[2020-02-06T10:51:04.574457] Order: #4186024 price 0.050892749999999994 selected at step 2.1
+INFO:root:[2020-02-06T10:51:27.646627] Error processing order #4186024:<class 'TypeError'>
+INFO:root:[2020-02-06T10:54:12.009661] New cycle started
+INFO:root:[2020-02-06T10:54:12.010209] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:54:18.213386] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:54:18.213386] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:55:03.663328] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:55:03.664326] Parse items prices started
+INFO:root:[2020-02-06T10:56:25.310218] Filtering parsed items
+INFO:root:[2020-02-06T10:56:25.310218] Filtering parsed items
+INFO:root:[2020-02-06T10:56:25.311175] Parse items prices finished
+INFO:root:[2020-02-06T10:56:25.314166] Process orders started
+INFO:root:[2020-02-06T10:56:25.314166] Take order: #4198011
+INFO:root:[2020-02-06T10:56:35.264327] Take order: #4186024
+INFO:root:[2020-02-06T10:57:46.401243] Order: #4186024 price 0.050892749999999994 selected at step 2.1
+INFO:root:[2020-02-06T10:58:06.086257] Changing order #4186024
+INFO:root:[2020-02-06T10:58:13.086280] Order #4186024 Field "products_price" changed to 0.050892749999999994
+INFO:root:[2020-02-06T10:58:14.173999] Order #4186024 successfully changed

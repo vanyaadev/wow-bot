@@ -200,7 +200,7 @@ class Dispatcher(Thread):
     def process_orders(self):
         logging.info(f'[{dt.datetime.now().isoformat()}] Process orders started')
 
-        changed_orders = set()
+        changed_orders = []
 
         for order in self.active_orders_eu + self.active_orders_us:
 
@@ -226,7 +226,7 @@ class Dispatcher(Thread):
                     ]
 
                     # 2.1
-                    if all(perc_dif < 0.02 for row in compare_percent_difference for perc_dif in row) and \
+                    if all(abs(perc_dif) < 0.02 for row in compare_percent_difference for perc_dif in row) and \
                             sum([i.stock_amount for i in items[:5]]) > settings.gold_amount:
                         for i in range(5):
                             if items[i].stock_amount > settings.gold_amount_22:
@@ -267,8 +267,8 @@ class Dispatcher(Thread):
                                      f' Order: #{order.listing_number} price {SELECTED_PRICE} selected at step 3')
 
                 if SELECTED_PRICE:
-                    order.price = SELECTED_PRICE
-                    changed_orders.add(order)
+                    order.price = round(SELECTED_PRICE, 6)
+                    changed_orders.append(order)
 
             except:
                 logging.info(f'[{dt.datetime.now().isoformat()}] Error processing order #{order.listing_number}:' +

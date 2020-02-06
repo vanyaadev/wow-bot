@@ -181,6 +181,8 @@ class MainWindow(QMainWindow):
 
     def start_button_clicked(self):
         if self.start_button.text() == 'Start':
+            self.dispatcher.classic_settings = self.classic_settings
+            self.dispatcher.bfa_settings = self.bfa_settings
             self.dispatcher.unpause()
             self.start_button.setText('Stop')
         else:
