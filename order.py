@@ -17,3 +17,6 @@ class Order:
     price: float = None
     listing_number: int = None
     status: str = ''
+
+    def __eq__(self, other):
+        return self.listing_number == other.listing_number

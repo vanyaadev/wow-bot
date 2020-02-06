@@ -9,7 +9,7 @@ from threading import Thread
 from bot import Bot
 from settings import Settings
 from parser_items import GItem, GoldParser, make_url
-from utils import make_proxy, orders_from_excel
+from utils import make_proxy, orders_from_excel, add_change_orders_from_excel
 
 PRICE_STEP = 0.00001
 
@@ -283,7 +283,18 @@ class Dispatcher(Thread):
         self.bot.deactivate_all()
 
     def add_orders_from_excel(self, fpath):
-        orders = orders_from_excel(fpath)
+        orders = add_change_orders_from_excel(fpath)
+        active_orders = self.bot.active_orders('eu') + self.bot.active_orders('us')
+
+        logging.info(f'[{dt.datetime.now().isoformat()}] Processing {len(orders)} from Excel')
+
+        for order in orders:
+            if order in active_orders:
+                logging.info(f'[{dt.datetime.now().isoformat()}] Editing order #{order.listing_number}')
+                self.bot.change_order(order)
+            else:
+                logging.info(f'[{dt.datetime.now().isoformat()}] Adding order to g2g')
+                self.bot.add_order(order, order.price)
 
     # Manage thread methods
 

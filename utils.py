@@ -108,5 +108,56 @@ def orders_from_excel(file_path, just_active=False):
     return orders
 
 
+def add_change_orders_from_excel(file_path, just_active=False):
+
+    orders = []
+
+    wb = xlrd.open_workbook(file_path)
+    sh = wb.sheet_by_index(0)
+
+    row = 1
+    while True:
+        try:
+            if sh.cell_value(row, 0) == xlrd.empty_cell.value:
+                break
+        except IndexError:
+            break
+
+        values = [str(sh.cell_value(row, i)).strip() for i in range(13)]
+
+        listing_number = int(float(values[0]))
+        region = values[1]
+        server = values[2]
+        faction = values[3]
+        stock = int(float(values[4]))
+        price = float(values[5])
+        currency = values[6]
+        description = values[7]
+        min_unit_per_order = int(float(values[8]))
+        duration = int(float(values[9]))
+        delivery_option = values[10]
+        online_hrs = int(float(values[11]))
+        offline_hrs = int(float(values[12]))
+
+        order = Order(region=region,
+                      server=server,
+                      faction=faction,
+                      stock=stock,
+                      currency=currency,
+                      description=description,
+                      min_unit_per_order=min_unit_per_order,
+                      duration=duration,
+                      delivery_option=delivery_option,
+                      online_hrs=online_hrs,
+                      offline_hrs=offline_hrs,
+                      price=price,
+                      listing_number=listing_number)
+
+        orders.append(order)
+        row += 1
+
+    return orders
+
+
 if __name__ == '__main__':
     print(make_proxy('123.123.123.123:8080,MyLogin,MyPassword'))

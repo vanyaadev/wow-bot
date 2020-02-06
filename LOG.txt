@@ -231,3 +231,65 @@ INFO:root:[2020-02-06T10:57:46.401243] Order: #4186024 price 0.05089274999999999
 INFO:root:[2020-02-06T10:58:06.086257] Changing order #4186024
 INFO:root:[2020-02-06T10:58:13.086280] Order #4186024 Field "products_price" changed to 0.050892749999999994
 INFO:root:[2020-02-06T10:58:14.173999] Order #4186024 successfully changed
+INFO:root:[2020-02-06T13:44:01.082101] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T13:44:09.322122] Parsed active orders successfully. Return 1 orders
+INFO:root:[2020-02-06T13:44:09.322122] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T13:44:14.701319] Parsed active orders successfully. Return 3 orders
+INFO:root:[2020-02-06T13:44:14.702279] Changing order #4325221
+INFO:root:[2020-02-06T13:44:17.785644] Order #4325221 Field "products_price" changed to 1.0
+INFO:root:[2020-02-06T13:44:18.540302] Order #4325221 not changed! Error: <class 'selenium.common.exceptions.StaleElementReferenceException'>
+INFO:root:[2020-02-06T13:44:18.540302] Changing order #4198011
+INFO:root:[2020-02-06T13:44:23.776289] Order #4198011 Field "online_hr" changed to 3
+INFO:root:[2020-02-06T13:44:25.208455] Order #4198011 successfully changed
+INFO:root:[2020-02-06T13:44:25.208455] Changing order #4186024
+INFO:root:[2020-02-06T13:44:28.830880] Order #4186024 Field "products_price" changed to 0.0669
+INFO:root:[2020-02-06T13:44:29.211110] Order #4186024 not changed! Error: <class 'selenium.common.exceptions.StaleElementReferenceException'>
+INFO:root:[2020-02-06T13:44:29.212111] Changing order #4186014
+INFO:root:[2020-02-06T13:44:32.390711] Order #4186014 Field "products_price" changed to 0.08549
+INFO:root:[2020-02-06T13:44:33.522444] Order #4186014 Field "online_hr" changed to 3
+INFO:root:[2020-02-06T13:44:34.565034] Order #4186014 successfully changed
+INFO:root:[2020-02-06T14:06:21.152050] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T14:06:27.017800] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T14:06:27.018799] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T14:06:32.321630] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T14:06:32.322591] Processing 2 from Excel
+INFO:root:[2020-02-06T14:06:32.322591] Editing order #4198011
+INFO:root:[2020-02-06T14:06:32.322591] Changing order #4198011
+INFO:root:[2020-02-06T14:06:35.580843] Order #4198011 Field "actual_quantity" changed to 4321
+INFO:root:[2020-02-06T14:06:36.844315] Order #4198011 Field "minimum_quantity" changed to 321
+INFO:root:[2020-02-06T14:06:38.017250] Order #4198011 Field "products_price" changed to 0.888887
+INFO:root:[2020-02-06T14:06:39.161051] Order #4198011 Field "online_hr" changed to 2
+INFO:root:[2020-02-06T14:06:40.491676] Order #4198011 Field "offline_hr" changed to 4
+INFO:root:[2020-02-06T14:06:41.492518] Order #4198011 successfully changed
+INFO:root:[2020-02-06T14:06:41.492518] Adding order to g2g
+INFO:root:[2020-02-06T14:06:41.492518] Add order: [Order(region='us', server='Classic - Whitemane ', faction='Horde ', stock=5555, currency='USD', description='test', min_unit_per_order=333, duration=3, delivery_option='Face to face trade', online_hrs=3, offline_hrs=5, price=0.652, listing_number=0, status='Active')] with price 0.652
+INFO:root:[2020-02-06T14:06:45.111161] Error adding order: Message: Could not locate element with visible text: Classic - Whitemane 
+
+INFO:root:[2020-02-06T14:36:05.250343] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T14:36:09.508949] Error parsing active orders: Message: no such window: window was already closed
+  (Session info: chrome=79.0.3945.130)
+
+INFO:root:[2020-02-06T14:36:09.508949] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T14:36:09.509945] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T14:36:13.554460] Error parsing active orders: Message: no such window: window was already closed
+  (Session info: chrome=79.0.3945.130)
+
+INFO:root:[2020-02-06T14:36:13.554460] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T14:36:13.554460] Processing 2 from Excel
+INFO:root:[2020-02-06T14:36:13.554460] Adding order to g2g
+INFO:root:[2020-02-06T14:36:13.555456] Add order: [Order(region='EU', server='Classic - Golemagg', faction='Alliance', stock=9999, currency='USD', description='wow gold', min_unit_per_order=9999, duration=3, delivery_option='Face to face trade, Mail, Auction House', online_hrs=1, offline_hrs=12, price=1.0, listing_number=4325221, status='')] with price 1.0
+INFO:root:[2020-02-06T14:36:49.770881] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T14:36:55.740642] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T14:36:55.741639] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T14:37:02.218364] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T14:37:02.219362] Processing 2 from Excel
+INFO:root:[2020-02-06T14:37:02.219362] Adding order to g2g
+INFO:root:[2020-02-06T14:37:02.220371] Add order: [Order(region='EU', server='Classic - Golemagg', faction='Alliance', stock=9999, currency='USD', description='wow gold', min_unit_per_order=9999, duration=3, delivery_option='Face to face trade, Mail, Auction House', online_hrs=1, offline_hrs=12, price=1.0, listing_number=4325221, status='')] with price 1.0
+INFO:root:[2020-02-06T14:37:08.633198] Adding order to g2g
+INFO:root:[2020-02-06T14:37:08.633198] Add order: [Order(region='EU', server='Classic - Golemagg', faction='Horde', stock=9999, currency='USD', description='wow gold', min_unit_per_order=9999, duration=3, delivery_option='Face to face trade, Mail, Auction House', online_hrs=1, offline_hrs=12, price=1.0, listing_number=0, status='')] with price 1.0
+INFO:root:[2020-02-06T14:37:40.397062] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T14:37:50.198918] Parsed active orders successfully. Return 1 orders
+INFO:root:[2020-02-06T14:37:50.198918] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T14:37:55.696524] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T14:41:01.547291] Processing 2 from Excel
+INFO:root:[2020-02-06T14:42:44.430753] Adding order to g2g

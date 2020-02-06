@@ -169,6 +169,10 @@ class MainWindow(QMainWindow):
         self.deactivate_orders.triggered.connect(self.deactivate_orders_clicked)
         self.toolbar.addAction(self.deactivate_orders)
 
+        self.set_delivery_time = QAction('Set delivery', self)
+        self.set_delivery_time.triggered.connect(self.change_order_time)
+        self.toolbar.addAction(self.set_delivery_time)
+
         self.save_settings_button = QAction('Save settings', self)
         self.save_settings_button.setToolTip('Save settings to use in the next run')
         self.save_settings_button.triggered.connect(self.save_settings_button_clicked)
@@ -176,7 +180,7 @@ class MainWindow(QMainWindow):
 
         self.addToolBar(self.toolbar)
 
-        self.setGeometry(200, 200, 800, 500)
+        self.setGeometry(200, 200, 900, 500)
         self.show()
 
     def start_button_clicked(self):
@@ -225,6 +229,22 @@ class MainWindow(QMainWindow):
             time.sleep(1)
 
         self.dispatcher.deactivate_all_orders()
+        self.dispatcher.paused = was_paused
+
+    def change_order_time(self):
+        was_paused = self.dispatcher.paused
+        self.dispatcher.pause()
+        while not self.dispatcher.pause_accepted:
+            time.sleep(1)
+
+        orders = self.dispatcher.bot.active_orders('eu', active_status=False) + \
+                    self.dispatcher.bot.active_orders('us', active_status=False)
+
+        for order in orders:
+            hrs = self.classic_settings.delivery_time if 'classic' in order.server.lower() else self.bfa_settings.delivery_time
+            order.online_hrs = hrs
+            self.dispatcher.bot.change_order(order)
+
         self.dispatcher.paused = was_paused
 
     def save_settings_button_clicked(self):

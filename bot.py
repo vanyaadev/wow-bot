@@ -15,12 +15,15 @@ from telegram_bot import TelegramBot
 
 logging.basicConfig(level=logging.INFO, filename='LOG.txt', filemode='a')
 
-# USER_DATA_DIR = os.getcwd()+'/ChromeProfile'
+#USER_DATA_DIR = os.getcwd()+'/ChromeProfile'
 USER_DATA_DIR = r'C:\Users\ianti\AppData\Local\Google\Chrome\User Data'
 DEFAULT_DOWNLOAD_DIRECTORY = os.path.join(os.getcwd(), 'Downloads')
 
 if not os.path.exists(DEFAULT_DOWNLOAD_DIRECTORY):
     os.mkdir(DEFAULT_DOWNLOAD_DIRECTORY)
+
+if not os.path.exists(USER_DATA_DIR):
+    os.mkdir(USER_DATA_DIR)
 
 
 class Bot:
@@ -191,7 +194,7 @@ class Bot:
         time.sleep(1)
         logging.info(f'[{dt.datetime.now().isoformat()}] Order #{order.listing_number} successfully changed')
 
-    def active_orders(self, region='eu'):
+    def active_orders(self, region='eu', active_status = True):
         logging.info(f'[{dt.datetime.now().isoformat()}] Started parsing active orders. Region: {region}')
 
         orders = []
@@ -214,7 +217,7 @@ class Bot:
                              if file.endswith('.xls') and file not in current_xls_files}.pop()
             new_file_path = os.path.join(DEFAULT_DOWNLOAD_DIRECTORY, new_file_name)
 
-            orders = orders_from_excel(new_file_path, just_active=True)
+            orders = orders_from_excel(new_file_path, just_active=active_status)
 
             os.remove(new_file_path)
         except Exception as e:
