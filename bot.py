@@ -191,7 +191,7 @@ class Bot:
         time.sleep(1)
         logging.info(f'[{dt.datetime.now().isoformat()}] Order #{order.listing_number} successfully changed')
 
-    def active_orders(self, region='eu', just_active = False):
+    def active_orders(self, region='eu'):
         logging.info(f'[{dt.datetime.now().isoformat()}] Started parsing active orders. Region: {region}')
 
         orders = []

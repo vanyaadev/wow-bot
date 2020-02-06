@@ -145,7 +145,7 @@ class GoldParser(Thread):
                 page_of_seller = requests.get(seller_url, proxies=self.proxy).text
                 soup2 = bs(page_of_seller, 'html.parser')
                 seller_rating = soup2.find('span', {'class': 'user-statistic__percent'}).text[:-1]
-                sellers_rating[seller_url] = seller_rating
+                sellers_rating[seller_url] = float(seller_rating)
 
             try:
                 seller_prof_level = int(child.find('span', class_='seller__level-icon-counter').text)

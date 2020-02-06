@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import logging
 import datetime as dt
@@ -8,7 +9,7 @@ from threading import Thread
 from bot import Bot
 from settings import Settings
 from parser_items import GItem, GoldParser, make_url
-from utils import make_proxy
+from utils import make_proxy, orders_from_excel
 
 PRICE_STEP = 0.00001
 
@@ -60,7 +61,6 @@ class Dispatcher(Thread):
 
             # Accept commands from gui
 
-
             if time.time() - self.classic_last_update > self.classic_settings.change_order_time * 60:
                 self.skip_classic = False
 
@@ -79,15 +79,16 @@ class Dispatcher(Thread):
 
             self.parse_items_prices()
 
-            self.process_orders()
+            changed_orders = self.process_orders() # type: set[Order]
+            for order in changed_orders:
+                self.bot.change_order(order)
 
-            if not self.skip_classic:
+            if any(['classic' in o.server.lower() for o in changed_orders]):
                 self.classic_last_update = time.time()
-            if not self.skip_bfa:
+            if any(['classic' not in o.server.lower() for o in changed_orders]):
                 self.bfa_last_update = time.time()
 
             time.sleep(1)
-
 
     # Process items methods
 
@@ -176,11 +177,11 @@ class Dispatcher(Thread):
 
             if item.seller_name in settings.ignore_nicknames:
                 continue
-            if item.delivery_time > settings.delivery_time:
+            if item.delivery_time > settings.ignore_sellers_by_delivery:
                 continue
             if item.min_quantity * item.price > settings.ignore_sellers_by_min_price:
                 continue
-            if item.seller_rating < settings.ignore_sellers_by_level:
+            if item.seller_professional_level < settings.ignore_sellers_by_level:
                 continue
             if item.stock_amount < settings.ignore_gold_amount:
                 continue
@@ -199,80 +200,90 @@ class Dispatcher(Thread):
     def process_orders(self):
         logging.info(f'[{dt.datetime.now().isoformat()}] Process orders started')
 
-        selected_prices = {}
+        changed_orders = set()
 
         for order in self.active_orders_eu + self.active_orders_us:
 
-            logging.info(f'[{dt.datetime.now().isoformat()}] Take order: #{order.listing_number}')
-            SELECTED_PRICE = None
+            try:
+                logging.info(f'[{dt.datetime.now().isoformat()}] Take order: #{order.listing_number}')
+                SELECTED_PRICE = None
 
-            settings = self.classic_settings if 'classic' in order.server.lower() else self.bfa_settings
-            items = self.get_items_by_server(order.region, order.faction, order.server)
-            # take first 5 items
+                settings = self.classic_settings if 'classic' in order.server.lower() else self.bfa_settings
+                items = self.get_items_by_server(order.region, order.faction, order.server)
+                # take first 5 items
 
-            # STEP 1
-            sellers_gold = [i.stock_amount <= settings.gold_amount for i in items[:5]]
-            all_gold_is_less_than = all(sellers_gold)
-            just_one_more_than = items[0].stock_amount > settings.gold_amount and all(sellers_gold[1:])
+                # STEP 1
+                sellers_gold = [i.stock_amount <= settings.gold_amount for i in items[:5]]
+                all_gold_is_less_than = all(sellers_gold)
+                just_one_more_than = items[0].stock_amount > settings.gold_amount and all(sellers_gold[1:])
 
-            percent_difference = lambda p1, p2: p1 / p2 - 1
-            # STEP 2
-            if all_gold_is_less_than:
+                percent_difference = lambda p1, p2: p1 / p2 - 1
+                # STEP 2
+                if all_gold_is_less_than:
 
-                compare_percent_difference = [
-                    [percent_difference(items[i].price, items[j].price) for j in range(5)] for i in range(5)
-                ]
+                    compare_percent_difference = [
+                        [percent_difference(items[i].price, items[j].price) for j in range(5)] for i in range(5)
+                    ]
 
-                # 2.1
-                if all(perc_dif < 0.02 for row in compare_percent_difference for perc_dif in row) and \
-                        sum([i.stock_amount for i in items[:5]]) > settings.gold_amount:
-                    for i in range(5):
-                        if items[i].stock_amount > settings.gold_amount_22:
+                    # 2.1
+                    if all(perc_dif < 0.02 for row in compare_percent_difference for perc_dif in row) and \
+                            sum([i.stock_amount for i in items[:5]]) > settings.gold_amount:
+                        for i in range(5):
+                            if items[i].stock_amount > settings.gold_amount_22:
 
-                            SELECTED_PRICE = items[i].price - PRICE_STEP
-                            logging.info(f'[{dt.datetime.now().isoformat()}]'+
-                                         f' Order: #{order.listing_number} price {SELECTED_PRICE} selected at step 2.1')
-                            break
-
-                # 2.2
-                if any(perc_dif > 0.02 for row in compare_percent_difference for perc_dif in row) and \
-                        sum([i.stock_amount for i in items[:5]]):
-                    for i in range(5):
-                        for j in range(5):
-                            if compare_percent_difference[i][j] > 0.02:
-                                SELECTED_PRICE = (items[i].price + items[j].price) / 2
-                                logging.info(f'[{dt.datetime.now().isoformat()}]' +
-                                             f' Order: #{order.listing_number} price {SELECTED_PRICE} selected at step 2.2')
+                                SELECTED_PRICE = items[i].price - PRICE_STEP
+                                logging.info(f'[{dt.datetime.now().isoformat()}]'+
+                                             f' Order: #{order.listing_number} price {SELECTED_PRICE} selected at step 2.1')
                                 break
 
-                        if SELECTED_PRICE:
-                            break
+                    # 2.2
+                    if any(perc_dif > 0.02 for row in compare_percent_difference for perc_dif in row) and \
+                            sum([i.stock_amount for i in items[:5]]):
+                        for i in range(5):
+                            for j in range(5):
+                                if compare_percent_difference[i][j] > 0.02:
+                                    SELECTED_PRICE = (items[i].price + items[j].price) / 2
+                                    logging.info(f'[{dt.datetime.now().isoformat()}]' +
+                                                 f' Order: #{order.listing_number} price {SELECTED_PRICE} selected at step 2.2')
+                                    break
 
-            # STEP 3
-            if just_one_more_than:
-                avr_price = sum([i.price for i in items[2:5]]) / 4
-                perc_diff = percent_difference(avr_price, items[0].price)
+                            if SELECTED_PRICE:
+                                break
 
-                if perc_diff < 0.07 or \
-                    (0.07 <= perc_diff <= 0.12 and
-                     items[0].stock_amount > settings.gold_amount * 2 and
-                     items[0].seller_professional_level > 100
-                    ):
+                # STEP 3
+                if just_one_more_than:
+                    avr_price = sum([i.price for i in items[2:5]]) / 4
+                    perc_diff = percent_difference(avr_price, items[0].price)
 
-                    SELECTED_PRICE = items[0].price - PRICE_STEP
+                    if perc_diff < 0.07 or \
+                        (0.07 <= perc_diff <= 0.12 and
+                         items[0].stock_amount > settings.gold_amount * 2 and
+                         items[0].seller_professional_level > 100
+                        ):
 
-                    logging.info(f'[{dt.datetime.now().isoformat()}]' +
-                                 f' Order: #{order.listing_number} price {SELECTED_PRICE} selected at step 3')
+                        SELECTED_PRICE = items[0].price - PRICE_STEP
 
-            selected_prices[order.listing_number] = SELECTED_PRICE
+                        logging.info(f'[{dt.datetime.now().isoformat()}]' +
+                                     f' Order: #{order.listing_number} price {SELECTED_PRICE} selected at step 3')
 
-        return selected_prices
+                if SELECTED_PRICE:
+                    order.price = SELECTED_PRICE
+                    changed_orders.add(order)
+
+            except:
+                logging.info(f'[{dt.datetime.now().isoformat()}] Error processing order #{order.listing_number}:' +
+                             str(sys.exc_info()[0]))
+
+        return changed_orders
 
     def activate_all_orders(self):
-        pass
+        self.bot.activate_all()
 
     def deactivate_all_orders(self):
-        pass
+        self.bot.deactivate_all()
+
+    def add_orders_from_excel(self, fpath):
+        orders = orders_from_excel(fpath)
 
     # Manage thread methods
 

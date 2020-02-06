@@ -10,3 +10,135 @@ INFO:root:[2020-02-05T21:56:40.206826] Activate all orders started
 INFO:root:[2020-02-05T21:56:47.091999] Orders activated
 INFO:root:[2020-02-05T21:56:51.385866] Deactivate all orders started
 INFO:root:[2020-02-05T21:56:57.839980] Orders deactivated
+INFO:root:[2020-02-06T09:43:41.710896] Activate all orders started
+INFO:root:[2020-02-06T09:43:52.468794] Orders activated
+INFO:root:[2020-02-06T09:43:59.220324] Deactivate all orders started
+INFO:root:[2020-02-06T09:44:06.457241] Orders deactivated
+INFO:root:[2020-02-06T09:47:37.245943] New cycle started
+INFO:root:[2020-02-06T09:47:37.245943] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T09:47:43.373845] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T09:47:43.373845] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T09:47:49.057107] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T09:47:49.058102] Parse items prices started
+INFO:root:[2020-02-06T09:47:49.058102] Parse items prices finished
+INFO:root:[2020-02-06T09:47:49.058102] Process orders started
+INFO:root:[2020-02-06T09:47:50.082361] New cycle started
+INFO:root:[2020-02-06T09:47:50.082361] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T09:47:56.701572] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T09:47:56.701572] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T09:48:02.575485] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T09:48:02.575485] Parse items prices started
+INFO:root:[2020-02-06T09:48:02.576481] Parse items prices finished
+INFO:root:[2020-02-06T09:48:02.576481] Process orders started
+INFO:root:[2020-02-06T09:48:19.100003] New cycle started
+INFO:root:[2020-02-06T09:48:23.674627] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T09:48:29.775497] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T09:48:45.720188] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T09:48:51.559801] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T09:49:07.045064] Parse items prices started
+INFO:root:[2020-02-06T09:49:35.850415] Parse items prices finished
+INFO:root:[2020-02-06T09:49:39.841971] Process orders started
+INFO:root:[2020-02-06T09:53:09.772915] New cycle started
+INFO:root:[2020-02-06T09:53:12.573799] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T09:53:21.851113] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T09:53:27.547777] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T09:53:34.552387] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T09:53:39.114101] Parse items prices started
+INFO:root:[2020-02-06T09:54:55.034470] Filtering parsed items
+INFO:root:[2020-02-06T09:54:55.035431] Filtering parsed items
+INFO:root:[2020-02-06T09:54:55.035431] Parse items prices finished
+INFO:root:[2020-02-06T09:55:04.737107] Process orders started
+INFO:root:[2020-02-06T09:55:08.417467] Take order: #4198011
+INFO:root:[2020-02-06T10:00:48.188439] New cycle started
+INFO:root:[2020-02-06T10:00:48.188439] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:00:53.850714] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:00:53.850714] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:01:00.303756] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:01:00.303756] Parse items prices started
+INFO:root:[2020-02-06T10:01:43.900408] Filtering parsed items
+INFO:root:[2020-02-06T10:01:43.900408] Filtering parsed items
+INFO:root:[2020-02-06T10:01:43.900408] Parse items prices finished
+INFO:root:[2020-02-06T10:01:43.903401] Process orders started
+INFO:root:[2020-02-06T10:01:48.941441] Take order: #4198011
+INFO:root:[2020-02-06T10:05:26.652101] New cycle started
+INFO:root:[2020-02-06T10:05:26.653058] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:05:32.911661] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:05:32.911661] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:05:39.306396] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:05:39.308390] Parse items prices started
+INFO:root:[2020-02-06T10:10:23.584963] Filtering parsed items
+INFO:root:[2020-02-06T10:10:32.768352] Filtering parsed items
+INFO:root:[2020-02-06T10:10:32.769341] Parse items prices finished
+INFO:root:[2020-02-06T10:10:32.771336] Process orders started
+INFO:root:[2020-02-06T10:10:34.305282] Take order: #4198011
+INFO:root:[2020-02-06T10:10:34.305966] Error processing order #4198011:<class 'IndexError'>
+INFO:root:[2020-02-06T10:10:34.305966] Take order: #4186024
+INFO:root:[2020-02-06T10:10:34.305966] Error processing order #4186024:<class 'IndexError'>
+INFO:root:[2020-02-06T10:10:39.408722] New cycle started
+INFO:root:[2020-02-06T10:10:39.409321] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:10:45.003797] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:10:45.003797] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:10:50.738784] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:10:50.739781] Parse items prices started
+INFO:root:[2020-02-06T10:11:25.302214] Filtering parsed items
+INFO:root:[2020-02-06T10:11:25.302214] Filtering parsed items
+INFO:root:[2020-02-06T10:11:25.302214] Parse items prices finished
+INFO:root:[2020-02-06T10:12:28.328852] Process orders started
+INFO:root:[2020-02-06T10:12:38.876046] Take order: #4198011
+INFO:root:[2020-02-06T10:13:07.995437] Error processing order #4198011:<class 'IndexError'>
+INFO:root:[2020-02-06T10:13:13.772395] Take order: #4186024
+INFO:root:[2020-02-06T10:13:13.773144] Error processing order #4186024:<class 'IndexError'>
+INFO:root:[2020-02-06T10:13:17.825272] New cycle started
+INFO:root:[2020-02-06T10:13:17.825831] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:13:23.801787] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:13:23.801787] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:13:29.613370] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:13:29.615365] Parse items prices started
+INFO:root:[2020-02-06T10:14:20.619204] Filtering parsed items
+INFO:root:[2020-02-06T10:17:23.602872] New cycle started
+INFO:root:[2020-02-06T10:17:23.603420] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:17:30.510046] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:17:30.510046] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:17:36.273021] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:17:36.275015] Parse items prices started
+INFO:root:[2020-02-06T10:19:49.824881] Filtering parsed items
+INFO:root:[2020-02-06T10:19:53.725377] Filtering parsed items
+INFO:root:[2020-02-06T10:20:41.373042] Parse items prices finished
+INFO:root:[2020-02-06T10:21:03.501559] Process orders started
+INFO:root:[2020-02-06T10:21:05.218850] Take order: #4198011
+INFO:root:[2020-02-06T10:21:05.219415] Error processing order #4198011:<class 'IndexError'>
+INFO:root:[2020-02-06T10:21:05.219415] Take order: #4186024
+INFO:root:[2020-02-06T10:21:05.219415] Error processing order #4186024:<class 'IndexError'>
+INFO:root:[2020-02-06T10:21:07.849176] New cycle started
+INFO:root:[2020-02-06T10:21:07.850178] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:21:14.315939] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:21:14.315939] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:21:20.109041] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:21:20.111037] Parse items prices started
+INFO:root:[2020-02-06T10:21:44.205544] Filtering parsed items
+INFO:root:[2020-02-06T10:23:22.335910] Filtering parsed items
+INFO:root:[2020-02-06T10:23:22.336865] Parse items prices finished
+INFO:root:[2020-02-06T10:23:22.338858] Process orders started
+INFO:root:[2020-02-06T10:23:23.402710] Take order: #4198011
+INFO:root:[2020-02-06T10:23:23.402710] Error processing order #4198011:<class 'IndexError'>
+INFO:root:[2020-02-06T10:23:23.403711] Take order: #4186024
+INFO:root:[2020-02-06T10:23:23.403711] Error processing order #4186024:<class 'IndexError'>
+INFO:root:[2020-02-06T10:23:49.309484] New cycle started
+INFO:root:[2020-02-06T10:23:49.309484] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:23:55.144997] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:23:55.144997] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:24:01.197321] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:24:01.200313] Parse items prices started
+INFO:root:[2020-02-06T10:24:19.458467] Filtering parsed items
+INFO:root:[2020-02-06T10:24:30.210933] Filtering parsed items
+INFO:root:[2020-02-06T10:24:39.537525] Parse items prices finished
+INFO:root:[2020-02-06T10:24:41.521013] Process orders started
+INFO:root:[2020-02-06T10:24:44.866982] Take order: #4198011
+INFO:root:[2020-02-06T10:25:46.708916] Take order: #4186024
+INFO:root:[2020-02-06T10:28:57.236907] New cycle started
+INFO:root:[2020-02-06T10:28:57.236907] Started parsing active orders. Region: eu
+INFO:root:[2020-02-06T10:29:03.294980] Parsed active orders successfully. Return 0 orders
+INFO:root:[2020-02-06T10:29:03.295979] Started parsing active orders. Region: us
+INFO:root:[2020-02-06T10:29:09.342164] Parsed active orders successfully. Return 2 orders
+INFO:root:[2020-02-06T10:29:09.346154] Parse items prices started
+INFO:root:[2020-02-06T10:29:37.523623] Filtering parsed items

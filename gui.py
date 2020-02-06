@@ -165,9 +165,18 @@ class MainWindow(QMainWindow):
         self.activate_orders.triggered.connect(self.activate_orders_clicked)
         self.toolbar.addAction(self.activate_orders)
 
+        self.deactivate_orders = QAction('Deactivate all orders', self)
+        self.deactivate_orders.triggered.connect(self.deactivate_orders_clicked)
+        self.toolbar.addAction(self.deactivate_orders)
+
+        self.save_settings_button = QAction('Save settings', self)
+        self.save_settings_button.setToolTip('Save settings to use in the next run')
+        self.save_settings_button.triggered.connect(self.save_settings_button_clicked)
+        self.toolbar.addAction(self.save_settings_button)
+
         self.addToolBar(self.toolbar)
 
-        self.setGeometry(200, 200, 600, 400)
+        self.setGeometry(200, 200, 800, 500)
         self.show()
 
     def start_button_clicked(self):
@@ -179,7 +188,20 @@ class MainWindow(QMainWindow):
             self.start_button.setText('Start')
 
     def update_from_excel_button_clicked(self):
-        pass
+        try:
+            fd = QFileDialog.getOpenFileName(self, "Choose xls file", os.getcwd())[0]
+
+            was_paused = self.dispatcher.paused
+            self.dispatcher.pause()
+            while not self.dispatcher.pause_accepted:
+                time.sleep(0.5)
+
+            self.dispatcher.add_orders_from_excel(fd)
+
+            self.dispatcher.paused = was_paused
+
+        except:
+            QMessageBox.warning(self, 'Error', str(sys.exc_info()[0]))
 
     def scan_now_clicked(self):
         self.dispatcher.classic_last_update = 0
@@ -202,6 +224,10 @@ class MainWindow(QMainWindow):
 
         self.dispatcher.deactivate_all_orders()
         self.dispatcher.paused = was_paused
+
+    def save_settings_button_clicked(self):
+        self.classic_settings.save('classic')
+        self.bfa_settings.save('bfa')
 
     def open_classic_settings(self):
         self.setWindowTitle('Classic settings')
